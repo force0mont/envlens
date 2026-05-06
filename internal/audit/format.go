@@ -35,3 +35,26 @@ func Format(report Report) string {
 
 	return sb.String()
 }
+
+// FormatSeverity returns only the findings matching the given severity level
+// as a human-readable string, useful for filtered output.
+func FormatSeverity(report Report, severity Severity) string {
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("Audit Report: %s [%s only]\n", report.File, severity))
+	sb.WriteString(strings.Repeat("-", 50) + "\n")
+
+	count := 0
+	for _, f := range report.Findings {
+		if f.Severity == severity {
+			sb.WriteString(fmt.Sprintf("  [%-8s] %s: %s\n", f.Severity, f.Key, f.Message))
+			count++
+		}
+	}
+
+	if count == 0 {
+		sb.WriteString("  No issues found.\n")
+	}
+
+	return sb.String()
+}
