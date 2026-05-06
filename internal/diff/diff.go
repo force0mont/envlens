@@ -42,6 +42,16 @@ func (r *Result) Summary() map[DiffKind]int {
 	return counts
 }
 
+// HasChanges reports whether the result contains any non-identical entries.
+func (r *Result) HasChanges() bool {
+	for _, e := range r.Entries {
+		if e.Kind != KindIdentical {
+			return true
+		}
+	}
+	return false
+}
+
 // Diff compares two parsed EnvFiles and returns a Result.
 func Diff(left, right *parser.EnvFile) *Result {
 	result := &Result{Left: left.Path, Right: right.Path}
