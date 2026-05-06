@@ -29,6 +29,30 @@ func Interpolate(env map[string]string) Result {
 	return Result{Env: resolved, Warnings: warnings}
 }
 
+// InterpolateWithOverrides resolves variable references within env values,
+// preferring values from overrides when a variable name exists in both maps.
+// This is useful for substituting variables using a separate set of
+// definitions (e.g. OS environment variables) without merging the maps.
+func InterpolateWithOverrides(env map[string]string, overrides map[string]string) Result {
+	resolved := make(map[string]string, len(env))
+	var warnings []string
+
+	// Build a combined lookup: overrides take precedence over env.
+	lookup := make(map[string]string, len(env)+len(overrides))
+	for k, v := range env {
+		lookup[k] = v
+	}
+	for k, v := range overrides {
+		lookup[k] = v
+	}
+
+	for key, value := range env {
+		resolved[key] = expand(value, lookup, &warnings)
+	}
+
+	return Result{Env: resolved, Warnings: warnings}
+}
+
 // expand replaces all variable references in s using lookup.
 func expand(s string, lookup map[string]string, warnings *[]string) string {
 	return varPattern.ReplaceAllStringFunc(s, func(match string) string {
