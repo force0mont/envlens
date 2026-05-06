@@ -76,6 +76,18 @@ func TestValidate_OptionalMissingSkipped(t *testing.T) {
 	}
 }
 
+func TestValidate_MultipleRules(t *testing.T) {
+	env := makeEnv("PORT", "not-a-port")
+	rules := []Rule{
+		{Key: "DATABASE_URL", Required: true},
+		{Key: "PORT", Pattern: `^\d+$`},
+	}
+	findings := Validate(env, rules)
+	if len(findings) != 2 {
+		t.Fatalf("expected 2 findings, got %d", len(findings))
+	}
+}
+
 func TestFormat_AllPassed(t *testing.T) {
 	out := Format(nil, "staging")
 	if !strings.Contains(out, "all rules passed") {
