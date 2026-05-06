@@ -58,6 +58,17 @@ func TestBuild_MultipleEdges(t *testing.T) {
 	}
 }
 
+func TestBuild_SingleFile(t *testing.T) {
+	// A single file produces no edges since there are no pairs to compare.
+	files := map[string]parser.EnvFile{
+		"only": makeEnv("KEY", "value"),
+	}
+	g := Build(files)
+	if len(g.Edges) != 0 {
+		t.Errorf("expected 0 edges for single file, got %d", len(g.Edges))
+	}
+}
+
 func TestFormat_ContainsLabels(t *testing.T) {
 	files := map[string]parser.EnvFile{
 		"alpha": makeEnv("KEY", "1"),
