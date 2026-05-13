@@ -65,6 +65,22 @@ func TestExtract_EmptyValue(t *testing.T) {
 	}
 }
 
+func TestExtract_DuplicateKeys(t *testing.T) {
+	env := makeEnv("DB_HOST", "localhost")
+	results := Extract(env, []string{"DB_HOST", "DB_HOST"})
+	if len(results) != 2 {
+		t.Fatalf("expected 2 results for duplicate keys, got %d", len(results))
+	}
+	for _, r := range results {
+		if !r.Found {
+			t.Errorf("expected key %q to be found", r.Key)
+		}
+		if r.Value != "localhost" {
+			t.Errorf("expected value %q, got %q", "localhost", r.Value)
+		}
+	}
+}
+
 func TestFormat_NoFindings(t *testing.T) {
 	out := Format([]Result{})
 	if !strings.Contains(out, "no keys requested") {
